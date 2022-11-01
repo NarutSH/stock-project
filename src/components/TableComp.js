@@ -15,55 +15,7 @@ import Paper from "@mui/material/Paper";
 
 import { visuallyHidden } from "@mui/utils";
 import { Avatar, Stack } from "@mui/material";
-
-// const headCells = [
-//   {
-//     id: "name",
-//     numeric: false,
-//     disablePadding: true,
-//     label: "Dessert (100g serving)",
-//   },
-//   {
-//     id: "calories",
-//     numeric: true,
-//     disablePadding: false,
-//     label: "Calories",
-//   },
-//   {
-//     id: "fat",
-//     numeric: true,
-//     disablePadding: false,
-//     label: "Fat (g)",
-//   },
-//   {
-//     id: "carbs",
-//     numeric: true,
-//     disablePadding: false,
-//     label: "Carbs (g)",
-//   },
-//   {
-//     id: "protein",
-//     numeric: true,
-//     disablePadding: false,
-//     label: "Protein (g)",
-//   },
-// ];
-
-// const rows = [
-//   createData("Cupcake", 305, 3.7, 67, 4.3),
-//   createData("Donut", 452, 25.0, 51, 4.9),
-//   createData("Eclair", 262, 16.0, 24, 6.0),
-//   createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-//   createData("Gingerbread", 356, 16.0, 49, 3.9),
-//   createData("Honeycomb", 408, 3.2, 87, 6.5),
-//   createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-//   createData("Jelly Bean", 375, 0.0, 94, 0.0),
-//   createData("KitKat", 518, 26.0, 65, 7.0),
-//   createData("Lollipop", 392, 0.2, 98, 0.0),
-//   createData("Marshmallow", 318, 0, 81, 2.0),
-//   createData("Nougat", 360, 19.0, 9, 37.0),
-//   createData("Oreo", 437, 18.0, 63, 4.0),
-// ];
+import { nFormatter } from "../utils/function";
 
 const TableComp = ({ headCells, rows }) => {
   const [order, setOrder] = React.useState("asc");
@@ -116,7 +68,7 @@ const TableComp = ({ headCells, rows }) => {
               align={headCell.numeric ? "right" : "left"}
               padding={headCell.disablePadding ? "none" : "normal"}
               sortDirection={orderBy === headCell.id ? order : false}
-              sx={{ minWidth: "100px" }}
+              sx={{ minWidth: "150px" }}
             >
               <TableSortLabel
                 active={orderBy === headCell.id}
@@ -233,47 +185,48 @@ const TableComp = ({ headCells, rows }) => {
                         scope="row"
                         padding="none"
                       >
-                        <Box display="flex" alignItems="center">
-                          <Avatar
-                            src={`https://s3-symbol-logo.tradingview.com/${row.stock_name}.svg`}
-                            alt={row.stock_name}
-                          />
+                        <Box display="flex" alignItems="center" p={1}>
+                          <Avatar src={row.stocklogourl} alt={row.stockname} />
                           <Stack ml={2}>
                             <Typography variant="body1">
-                              {row.symbol}
+                              {row.stocksymbols}
                             </Typography>
                             <Typography
                               variant="caption"
                               sx={{ whiteSpace: "nowrap" }}
                             >
-                              {row.stock_fullname}
+                              {row.stockname}
                             </Typography>
                           </Stack>
                         </Box>
                       </TableCell>
-                      <TableCell align="right">{row.price}</TableCell>
+                      <TableCell align="right">{row.stockprice}</TableCell>
                       <TableCell
                         align="right"
                         sx={{
-                          color: row.changed_percentage < 0 ? "red" : "green",
+                          color: row.stockchgpercent < 0 ? "red" : "green",
                         }}
                       >
-                        {(row.changed_percentage * 100).toFixed(2)}%
+                        {(row.stockchgpercent * 100).toFixed(2)}%
                       </TableCell>
                       <TableCell
                         align="right"
                         sx={{
-                          color: row.changed < 0 ? "red" : "green",
+                          color: row.stockchg < 0 ? "red" : "green",
                         }}
                       >
-                        {row.changed}
+                        {row.stockchg}
                       </TableCell>
                       {/* <TableCell align="right">{row.techical_point}</TableCell> */}
-                      <TableCell align="right">{row.volume}</TableCell>
-                      <TableCell align="right">{row.trading_volume}</TableCell>
-                      <TableCell align="right">{row.pe ?? "-"}</TableCell>
-                      <TableCell align="right">{row.eps12}</TableCell>
-                      <TableCell align="right">{row.sector}</TableCell>
+                      <TableCell align="right">
+                        {nFormatter(row.stockvol)}
+                      </TableCell>
+                      <TableCell align="right">
+                        {nFormatter(row.stockvolprice)}
+                      </TableCell>
+                      <TableCell align="right">{row.stockpe ?? "-"}</TableCell>
+                      <TableCell align="right">{row.stockeps}</TableCell>
+                      <TableCell align="right">{row.stocksector}</TableCell>
                     </TableRow>
                   );
                 })}
