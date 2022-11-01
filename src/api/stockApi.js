@@ -11,7 +11,7 @@ export const stockApi = axios.create({
 });
 
 export const getScanStock = async () => {
-  const res = await stockApi.get("/scanstock-api/");
+  const res = await stockApi.get("/scanstock-api");
 
   return res.data;
 };
