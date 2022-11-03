@@ -9,21 +9,31 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-
+import SearchIcon from "@mui/icons-material/Search";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 
 import { visuallyHidden } from "@mui/utils";
-import { Avatar, Stack } from "@mui/material";
+import { Avatar, InputAdornment, Stack, TextField } from "@mui/material";
 import { nFormatter } from "../utils/function";
+import { useState } from "react";
 
 const TableComp = ({ headCells, rows }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  // const [resRows, setResRows] = useState([]);
   const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("calories");
+  const [orderBy, setOrderBy] = React.useState("price");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
+
+  const resRows = rows.filter((row) => {
+    return (
+      row.stocksymbols.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      row.stockname.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -55,12 +65,14 @@ const TableComp = ({ headCells, rows }) => {
 
   function EnhancedTableHead(props) {
     const { order, orderBy, onRequestSort } = props;
+
     const createSortHandler = (property) => (event) => {
+      console.log({ event, property });
       onRequestSort(event, property);
     };
 
     return (
-      <TableHead sx={{ background: "RGBA(82, 76, 223, 0.2)" }}>
+      <TableHead>
         <TableRow>
           {headCells.map((headCell) => (
             <TableCell
@@ -68,7 +80,11 @@ const TableComp = ({ headCells, rows }) => {
               align={headCell.numeric ? "right" : "left"}
               padding={headCell.disablePadding ? "none" : "normal"}
               sortDirection={orderBy === headCell.id ? order : false}
-              sx={{ minWidth: "150px" }}
+              sx={{
+                minWidth: "150px",
+                fontSize: "1rem",
+                border: "1px solid rgb(240,242,247)",
+              }}
             >
               <TableSortLabel
                 active={orderBy === headCell.id}
@@ -76,6 +92,7 @@ const TableComp = ({ headCells, rows }) => {
                 onClick={createSortHandler(headCell.id)}
               >
                 {headCell.label}
+
                 {orderBy === headCell.id ? (
                   <Box component="span" sx={visuallyHidden}>
                     {order === "desc"
@@ -84,6 +101,15 @@ const TableComp = ({ headCells, rows }) => {
                   </Box>
                 ) : null}
               </TableSortLabel>
+              {/* {headCell.id === "stocksymbols" && (
+                <TextField
+                  label="Stock"
+                  variant="outlined"
+                  size="small"
+                  onChange={(ev) => setSearchTerm(ev.target.value)}
+                  value={searchTerm}
+                />
+              )} */}
             </TableCell>
           ))}
         </TableRow>
@@ -147,6 +173,22 @@ const TableComp = ({ headCells, rows }) => {
 
   return (
     <Box sx={{ width: "100%" }}>
+      <Box my={2}>
+        <TextField
+          label="Search"
+          variant="outlined"
+          size="small"
+          onChange={(ev) => setSearchTerm(ev.target.value)}
+          value={searchTerm}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
       <Paper sx={{ width: "100%", mb: 2 }}>
         <TableContainer>
           <Table
@@ -160,10 +202,10 @@ const TableComp = ({ headCells, rows }) => {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={resRows.length}
             />
             <TableBody>
-              {stableSort(rows, getComparator(order, orderBy))
+              {stableSort(resRows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   const isItemSelected = isSelected(row.name);
@@ -200,7 +242,12 @@ const TableComp = ({ headCells, rows }) => {
                           </Stack>
                         </Box>
                       </TableCell>
-                      <TableCell align="right">{row.stockprice}</TableCell>
+                      <TableCell align="right">
+                        {+row.stockprice}{" "}
+                        <Typography variant="caption" color="gray">
+                          THB
+                        </Typography>
+                      </TableCell>
                       <TableCell
                         align="right"
                         sx={{
@@ -215,17 +262,27 @@ const TableComp = ({ headCells, rows }) => {
                           color: row.stockchg < 0 ? "red" : "green",
                         }}
                       >
-                        {row.stockchg}
+                        {row.stockchg}{" "}
+                        <Typography variant="caption" color="gray">
+                          THB
+                        </Typography>
                       </TableCell>
-                      {/* <TableCell align="right">{row.techical_point}</TableCell> */}
                       <TableCell align="right">
                         {nFormatter(row.stockvol)}
                       </TableCell>
                       <TableCell align="right">
-                        {nFormatter(row.stockvolprice)}
+                        {nFormatter(row.stockvolprice)}{" "}
+                        <Typography variant="caption" color="gray">
+                          THB
+                        </Typography>
                       </TableCell>
                       <TableCell align="right">{row.stockpe ?? "-"}</TableCell>
-                      <TableCell align="right">{row.stockeps}</TableCell>
+                      <TableCell align="right">
+                        {row.stockeps}{" "}
+                        <Typography variant="caption" color="gray">
+                          THB
+                        </Typography>
+                      </TableCell>
                       <TableCell align="right">{row.stocksector}</TableCell>
                     </TableRow>
                   );
@@ -245,7 +302,7 @@ const TableComp = ({ headCells, rows }) => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50, 100]}
           component="div"
-          count={rows.length}
+          count={resRows.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

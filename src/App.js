@@ -1,12 +1,14 @@
-import { Container } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import React from "react";
 import Home from "./pages/Home";
 
 const App = () => {
   return (
-    <Container maxWidth="xl">
-      <Home />
-    </Container>
+    <Box sx={{ background: "rgb(255,254,254)" }}>
+      <Container maxWidth>
+        <Home />
+      </Container>
+    </Box>
   );
 };
 

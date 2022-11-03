@@ -18,61 +18,56 @@ const Home = () => {
 
   const headCells = [
     {
-      id: "stock",
+      id: "stocksymbols",
       numeric: false,
       disablePadding: false,
       label: "Stock",
     },
     {
-      id: "price",
+      id: "stockprice",
       numeric: true,
       disablePadding: false,
       label: "ราคา",
     },
     {
-      id: "changedPercentage",
+      id: "stockchgpercent",
       numeric: true,
       disablePadding: false,
       label: "% เปลี่ยนแปลง",
     },
     {
-      id: "change",
+      id: "stockchg",
       numeric: true,
       disablePadding: false,
       label: "เปลี่ยนแปลง",
     },
-    // {
-    //   id: "technicalPoint",
-    //   numeric: true,
-    //   disablePadding: false,
-    //   label: "คะแนนทางเทคนิค",
-    // },
+
     {
-      id: "volume",
+      id: "stockvol",
       numeric: true,
       disablePadding: false,
       label: "ปริมาณ",
     },
     {
-      id: "tradingVolume",
+      id: "stockvolprice",
       numeric: true,
       disablePadding: false,
       label: "ปริมาณการซื้อขาย",
     },
     {
-      id: "pe",
+      id: "stockpe",
       numeric: true,
       disablePadding: false,
       label: "อัตราส่วนราคาต่อกำไร",
     },
     {
-      id: "eps",
+      id: "stockeps",
       numeric: true,
       disablePadding: false,
       label: "กำไรต่อหุ้น 12 เดือนล่าสุด",
     },
     {
-      id: "sector",
+      id: "stocksector",
       numeric: false,
       disablePadding: false,
       label: "ภาคอุตสาหกรรม",
