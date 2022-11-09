@@ -26,13 +26,29 @@ const TableComp = ({ headCells, rows }) => {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("price");
   const [selected, setSelected] = useState([]);
-  const [page, setPage] = useState(0);
+  // const [page, setPage] = useState(0);
   const [dense] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(25);
+  // const [rowsPerPage, setRowsPerPage] = useState(25);
   const [hasMore, setHasMore] = useState(true);
   const limitItems = 50;
 
   useEffect(() => {
+    function descendingComparator(a, b, orderBy) {
+      if (b[orderBy] < a[orderBy]) {
+        return -1;
+      }
+      if (b[orderBy] > a[orderBy]) {
+        return 1;
+      }
+      return 0;
+    }
+
+    function getComparator(order, orderBy) {
+      return order === "desc"
+        ? (a, b) => descendingComparator(a, b, orderBy)
+        : (a, b) => -descendingComparator(a, b, orderBy);
+    }
+
     const resRows = rows.filter((row) => {
       return (
         row.stocksymbols.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -58,22 +74,6 @@ const TableComp = ({ headCells, rows }) => {
       setItems(restItems);
     }, 500);
   };
-
-  function descendingComparator(a, b, orderBy) {
-    if (b[orderBy] < a[orderBy]) {
-      return -1;
-    }
-    if (b[orderBy] > a[orderBy]) {
-      return 1;
-    }
-    return 0;
-  }
-
-  function getComparator(order, orderBy) {
-    return order === "desc"
-      ? (a, b) => descendingComparator(a, b, orderBy)
-      : (a, b) => -descendingComparator(a, b, orderBy);
-  }
 
   function stableSort(array, comparator) {
     const stabilizedThis = array.map((el, index) => [el, index]);
@@ -192,8 +192,8 @@ const TableComp = ({ headCells, rows }) => {
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  // const emptyRows =
+  //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -330,7 +330,7 @@ const TableComp = ({ headCells, rows }) => {
                   })
                 }
 
-                {emptyRows > 0 && (
+                {/* {emptyRows > 0 && (
                   <TableRow
                     style={{
                       height: (dense ? 33 : 53) * emptyRows,
@@ -338,7 +338,7 @@ const TableComp = ({ headCells, rows }) => {
                   >
                     <TableCell colSpan={6} />
                   </TableRow>
-                )}
+                )} */}
               </TableBody>
             </Table>
           </TableContainer>
