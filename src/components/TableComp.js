@@ -6,34 +6,58 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
+// import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import SearchIcon from "@mui/icons-material/Search";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 import { visuallyHidden } from "@mui/utils";
 import { Avatar, InputAdornment, Stack, TextField } from "@mui/material";
 import { nFormatter } from "../utils/function";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const TableComp = ({ headCells, rows }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [items, setItems] = useState([]);
   // const [resRows, setResRows] = useState([]);
-  const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("price");
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [dense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(25);
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("price");
+  const [selected, setSelected] = useState([]);
+  const [page, setPage] = useState(0);
+  const [dense] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [hasMore, setHasMore] = useState(true);
+  const limitItems = 50;
 
-  const resRows = rows.filter((row) => {
-    return (
-      row.stocksymbols.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.stockname.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  });
+  useEffect(() => {
+    const resRows = rows.filter((row) => {
+      return (
+        row.stocksymbols.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row.stockname.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
+
+    const resRowSort = stableSort(resRows, getComparator(order, orderBy));
+
+    setItems(resRowSort.slice(0, limitItems));
+  }, [rows, searchTerm, order, orderBy]);
+
+  const fetchMoreData = () => {
+    console.log("fetchMoreData");
+    if (items.length >= rows.length) {
+      setHasMore(false);
+      return;
+    }
+
+    setTimeout(() => {
+      const restItems = rows.slice(0, items.length + limitItems);
+
+      setItems(restItems);
+    }, 500);
+  };
 
   function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -152,14 +176,14 @@ const TableComp = ({ headCells, rows }) => {
     setSelected(newSelected);
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+  // const handleChangePage = (event, newPage) => {
+  //   setPage(newPage);
+  // };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  // const handleChangeRowsPerPage = (event) => {
+  //   setRowsPerPage(parseInt(event.target.value, 10));
+  //   setPage(0);
+  // };
 
   // const handleChangeDense = (event) => {
   //   setDense(event.target.checked);
@@ -190,124 +214,144 @@ const TableComp = ({ headCells, rows }) => {
         />
       </Box>
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <TableContainer>
-          <Table
-            sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
-            size={dense ? "small" : "medium"}
-          >
-            <EnhancedTableHead
-              numSelected={selected.length}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
-              rowCount={resRows.length}
-            />
-            <TableBody>
-              {stableSort(resRows, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
-                  const labelId = `enhanced-table-checkbox-${index}`;
+        <InfiniteScroll
+          dataLength={items.length}
+          next={fetchMoreData}
+          hasMore={hasMore}
+          loader={<h4>Loading...</h4>}
+          endMessage={
+            <p style={{ textAlign: "center" }}>
+              <b>No more</b>
+            </p>
+          }
+        >
+          <TableContainer>
+            <Table
+              sx={{ minWidth: 750 }}
+              aria-labelledby="tableTitle"
+              size={dense ? "small" : "medium"}
+            >
+              <EnhancedTableHead
+                numSelected={selected.length}
+                order={order}
+                orderBy={orderBy}
+                onSelectAllClick={handleSelectAllClick}
+                onRequestSort={handleRequestSort}
+                rowCount={rows.length}
+              />
+              <TableBody>
+                {
+                  // stableSort(items, getComparator(order, orderBy))
+                  // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  items.map((row, index) => {
+                    const isItemSelected = isSelected(row.name);
+                    const labelId = `enhanced-table-checkbox-${index}`;
 
-                  return (
-                    <TableRow
-                      hover
-                      onClick={(event) => handleClick(event, row.name)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={row.symbol}
-                      selected={isItemSelected}
-                    >
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
+                    return (
+                      <TableRow
+                        hover
+                        onClick={(event) => handleClick(event, row.name)}
+                        role="checkbox"
+                        aria-checked={isItemSelected}
+                        tabIndex={-1}
+                        key={row.symbol}
+                        selected={isItemSelected}
                       >
-                        <Box display="flex" alignItems="center" p={1}>
-                          <Avatar src={row.stocklogourl} alt={row.stockname} />
-                          <Stack ml={2}>
-                            <Typography variant="body1">
-                              {row.stocksymbols}
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              sx={{ whiteSpace: "nowrap" }}
-                            >
-                              {row.stockname}
-                            </Typography>
-                          </Stack>
-                        </Box>
-                      </TableCell>
-                      <TableCell align="right">
-                        {+row.stockprice}{" "}
-                        <Typography variant="caption" color="gray">
-                          THB
-                        </Typography>
-                      </TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{
-                          color: row.stockchgpercent < 0 ? "red" : "green",
-                        }}
-                      >
-                        {(row.stockchgpercent * 100).toFixed(2)}%
-                      </TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{
-                          color: row.stockchg < 0 ? "red" : "green",
-                        }}
-                      >
-                        {row.stockchg}{" "}
-                        <Typography variant="caption" color="gray">
-                          THB
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        {nFormatter(row.stockvol)}
-                      </TableCell>
-                      <TableCell align="right">
-                        {nFormatter(row.stockvolprice)}{" "}
-                        <Typography variant="caption" color="gray">
-                          THB
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right">{row.stockpe ?? "-"}</TableCell>
-                      <TableCell align="right">
-                        {row.stockeps}{" "}
-                        <Typography variant="caption" color="gray">
-                          THB
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right">{row.stocksector}</TableCell>
-                    </TableRow>
-                  );
-                })}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: (dense ? 33 : 53) * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          padding="none"
+                        >
+                          <Box display="flex" alignItems="center" p={1}>
+                            <Avatar
+                              src={row.stocklogourl}
+                              alt={row.stockname}
+                            />
+                            <Stack ml={2}>
+                              <Typography variant="body1">
+                                {row.stocksymbols}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                sx={{ whiteSpace: "nowrap" }}
+                              >
+                                {row.stockname}
+                              </Typography>
+                            </Stack>
+                          </Box>
+                        </TableCell>
+                        <TableCell align="right">
+                          {+row.stockprice}{" "}
+                          <Typography variant="caption" color="gray">
+                            THB
+                          </Typography>
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: row.stockchgpercent < 0 ? "red" : "green",
+                          }}
+                        >
+                          {(row.stockchgpercent * 100).toFixed(2)}%
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            color: row.stockchg < 0 ? "red" : "green",
+                          }}
+                        >
+                          {row.stockchg}{" "}
+                          <Typography variant="caption" color="gray">
+                            THB
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          {nFormatter(row.stockvol)}
+                        </TableCell>
+                        <TableCell align="right">
+                          {nFormatter(row.stockvolprice)}{" "}
+                          <Typography variant="caption" color="gray">
+                            THB
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          {row.stockpe ?? "-"}
+                        </TableCell>
+                        <TableCell align="right">
+                          {row.stockeps}{" "}
+                          <Typography variant="caption" color="gray">
+                            THB
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">{row.stocksector}</TableCell>
+                      </TableRow>
+                    );
+                  })
+                }
+
+                {emptyRows > 0 && (
+                  <TableRow
+                    style={{
+                      height: (dense ? 33 : 53) * emptyRows,
+                    }}
+                  >
+                    <TableCell colSpan={6} />
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </InfiniteScroll>
+        {/* <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50, 100]}
           component="div"
-          count={resRows.length}
+          count={rows.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        /> */}
       </Paper>
       {/* <FormControlLabel
         control={<Switch checked={dense} onChange={handleChangeDense} />}
