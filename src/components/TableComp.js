@@ -293,7 +293,7 @@ const TableComp = ({ headCells, rows }) => {
                             color: row.stockchgpercent < 0 ? "red" : "green",
                           }}
                         >
-                          {(row.stockchgpercent * 100).toFixed(2)}%
+                          {row.stockchgpercent.toFixed(2)}%
                         </TableCell>
                         <TableCell
                           align="right"
