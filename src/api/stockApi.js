@@ -15,3 +15,14 @@ export const getScanStock = async () => {
 
   return res.data;
 };
+export const getFreefloat = async () => {
+  const res = await stockApi.get("/freefloat-api/");
+
+  return res.data;
+};
+
+export const getStockRevenue = async () => {
+  const res = await stockApi.get("/stockrevenue-api/");
+
+  return res.data;
+};

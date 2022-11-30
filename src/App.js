@@ -5,7 +5,7 @@ import Home from "./pages/Home";
 const App = () => {
   return (
     <Box sx={{ background: "rgb(255,254,254)" }}>
-      <Container maxWidth>
+      <Container maxWidth="xl">
         <Home />
       </Container>
     </Box>

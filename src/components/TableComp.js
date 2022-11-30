@@ -51,8 +51,8 @@ const TableComp = ({ headCells, rows }) => {
 
     const resRows = rows.filter((row) => {
       return (
-        row.stocksymbols.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        row.stockname.toLowerCase().includes(searchTerm.toLowerCase())
+        row?.stocksymbols?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
+        row?.stockname?.toLowerCase()?.includes(searchTerm?.toLowerCase())
       );
     });
 
@@ -77,6 +77,7 @@ const TableComp = ({ headCells, rows }) => {
 
   function stableSort(array, comparator) {
     const stabilizedThis = array.map((el, index) => [el, index]);
+
     stabilizedThis.sort((a, b) => {
       const order = comparator(a[0], b[0]);
       if (order !== 0) {
@@ -91,7 +92,6 @@ const TableComp = ({ headCells, rows }) => {
     const { order, orderBy, onRequestSort } = props;
 
     const createSortHandler = (property) => (event) => {
-      console.log({ event, property });
       onRequestSort(event, property);
     };
 
@@ -254,7 +254,7 @@ const TableComp = ({ headCells, rows }) => {
                         role="checkbox"
                         aria-checked={isItemSelected}
                         tabIndex={-1}
-                        key={row.symbol}
+                        key={index}
                         selected={isItemSelected}
                       >
                         <TableCell
@@ -323,6 +323,30 @@ const TableComp = ({ headCells, rows }) => {
                           <Typography variant="caption" color="gray">
                             THB
                           </Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          {row?.freefloat?.percentfreefloat}%
+                        </TableCell>
+                        <TableCell align="center">
+                          {row?.stockRevenue?.ath ? (
+                            <Typography color="green">Yes</Typography>
+                          ) : (
+                            <Typography color="red">No</Typography>
+                          )}
+                        </TableCell>
+                        <TableCell align="center">
+                          {row?.stockRevenue?.growth ? (
+                            <Typography color="green">Yes</Typography>
+                          ) : (
+                            <Typography color="red">No</Typography>
+                          )}
+                        </TableCell>
+                        <TableCell align="center">
+                          {row?.stockRevenue?.turnAround ? (
+                            <Typography color="green">Yes</Typography>
+                          ) : (
+                            <Typography color="red">No</Typography>
+                          )}
                         </TableCell>
                         <TableCell align="right">{row.stocksector}</TableCell>
                       </TableRow>
