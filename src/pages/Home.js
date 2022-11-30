@@ -36,7 +36,7 @@ const Home = () => {
           ?.filter((el) => el.period.startsWith("q"));
 
         const revThisYear = asArray.filter(
-          (el) => el.period.slice(-4) === thisYear
+          (el) => +el.period.slice(-4) === thisYear
         );
 
         const revThisQ = revThisYear[revThisYear.length - 1];
@@ -46,7 +46,7 @@ const Home = () => {
           .map((el) => +revThisQ.rev > +el.rev);
 
         const revPrevYear = asArray
-          .filter((el) => el.period.slice(-4) === thisYear - 1)
+          .filter((el) => +el.period.slice(-4) === thisYear - 1)
           .reduce((a, b) => +a.rev + +b.rev, 0);
 
         // column 2
