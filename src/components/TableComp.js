@@ -6,7 +6,6 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
-// import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import SearchIcon from "@mui/icons-material/Search";
@@ -22,18 +21,17 @@ import { useState, useEffect } from "react";
 const TableComp = ({ headCells, rows }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [items, setItems] = useState([]);
-  // const [resRows, setResRows] = useState([]);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("price");
   const [selected, setSelected] = useState([]);
-  // const [page, setPage] = useState(0);
   const [dense] = useState(false);
-  // const [rowsPerPage, setRowsPerPage] = useState(25);
   const [hasMore, setHasMore] = useState(true);
   const limitItems = 50;
 
   useEffect(() => {
     function descendingComparator(a, b, orderBy) {
+      console.log({ a, b, orderBy });
+
       if (b[orderBy] < a[orderBy]) {
         return -1;
       }
@@ -62,7 +60,6 @@ const TableComp = ({ headCells, rows }) => {
   }, [rows, searchTerm, order, orderBy]);
 
   const fetchMoreData = () => {
-    console.log("fetchMoreData");
     if (items.length >= rows.length) {
       setHasMore(false);
       return;
@@ -105,7 +102,8 @@ const TableComp = ({ headCells, rows }) => {
               padding={headCell.disablePadding ? "none" : "normal"}
               sortDirection={orderBy === headCell.id ? order : false}
               sx={{
-                minWidth: "150px",
+                minWidth: "100px",
+
                 fontSize: "1rem",
                 border: "1px solid rgb(240,242,247)",
               }}
@@ -125,15 +123,6 @@ const TableComp = ({ headCells, rows }) => {
                   </Box>
                 ) : null}
               </TableSortLabel>
-              {/* {headCell.id === "stocksymbols" && (
-                <TextField
-                  label="Stock"
-                  variant="outlined"
-                  size="small"
-                  onChange={(ev) => setSearchTerm(ev.target.value)}
-                  value={searchTerm}
-                />
-              )} */}
             </TableCell>
           ))}
         </TableRow>
@@ -176,24 +165,7 @@ const TableComp = ({ headCells, rows }) => {
     setSelected(newSelected);
   };
 
-  // const handleChangePage = (event, newPage) => {
-  //   setPage(newPage);
-  // };
-
-  // const handleChangeRowsPerPage = (event) => {
-  //   setRowsPerPage(parseInt(event.target.value, 10));
-  //   setPage(0);
-  // };
-
-  // const handleChangeDense = (event) => {
-  //   setDense(event.target.checked);
-  // };
-
   const isSelected = (name) => selected.indexOf(name) !== -1;
-
-  // Avoid a layout jump when reaching the last page with empty rows.
-  // const emptyRows =
-  //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -240,147 +212,115 @@ const TableComp = ({ headCells, rows }) => {
                 rowCount={rows.length}
               />
               <TableBody>
-                {
-                  // stableSort(items, getComparator(order, orderBy))
-                  // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  items.map((row, index) => {
-                    const isItemSelected = isSelected(row.name);
-                    const labelId = `enhanced-table-checkbox-${index}`;
+                {items.map((row, index) => {
+                  const isItemSelected = isSelected(row.name);
+                  const labelId = `enhanced-table-checkbox-${index}`;
 
-                    return (
-                      <TableRow
-                        hover
-                        onClick={(event) => handleClick(event, row.name)}
-                        role="checkbox"
-                        aria-checked={isItemSelected}
-                        tabIndex={-1}
-                        key={index}
-                        selected={isItemSelected}
+                  return (
+                    <TableRow
+                      hover
+                      onClick={(event) => handleClick(event, row.name)}
+                      role="checkbox"
+                      aria-checked={isItemSelected}
+                      tabIndex={-1}
+                      key={index}
+                      selected={isItemSelected}
+                    >
+                      <TableCell
+                        component="th"
+                        id={labelId}
+                        scope="row"
+                        padding="none"
                       >
-                        <TableCell
-                          component="th"
-                          id={labelId}
-                          scope="row"
-                          padding="none"
-                        >
-                          <Box display="flex" alignItems="center" p={1}>
-                            <Avatar
-                              src={row.stocklogourl}
-                              alt={row.stockname}
-                            />
-                            <Stack ml={2}>
-                              <Typography variant="body1">
-                                {row.stocksymbols}
-                              </Typography>
-                              <Typography
-                                variant="caption"
-                                sx={{ whiteSpace: "nowrap" }}
-                              >
-                                {row.stockname}
-                              </Typography>
-                            </Stack>
-                          </Box>
-                        </TableCell>
-                        <TableCell align="right">
-                          {+row.stockprice}{" "}
-                          <Typography variant="caption" color="gray">
-                            THB
-                          </Typography>
-                        </TableCell>
-                        <TableCell
-                          align="right"
-                          sx={{
-                            color: row.stockchgpercent < 0 ? "red" : "green",
-                          }}
-                        >
-                          {row.stockchgpercent}%
-                        </TableCell>
-                        <TableCell
-                          align="right"
-                          sx={{
-                            color: row.stockchg < 0 ? "red" : "green",
-                          }}
-                        >
-                          {row.stockchg}{" "}
-                          <Typography variant="caption" color="gray">
-                            THB
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          {nFormatter(row.stockvol)}
-                        </TableCell>
-                        <TableCell align="right">
-                          {nFormatter(row.stockvolprice)}{" "}
-                          <Typography variant="caption" color="gray">
-                            THB
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          {row.stockpe ?? "-"}
-                        </TableCell>
-                        <TableCell align="right">
-                          {row.stockeps}{" "}
-                          <Typography variant="caption" color="gray">
-                            THB
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          {row?.freefloat?.percentfreefloat}%
-                        </TableCell>
-                        <TableCell align="center">
-                          {row?.stockRevenue?.ath ? (
-                            <Typography color="green">Yes</Typography>
-                          ) : (
-                            <Typography color="red">No</Typography>
-                          )}
-                        </TableCell>
-                        <TableCell align="center">
-                          {row?.stockRevenue?.growth ? (
-                            <Typography color="green">Yes</Typography>
-                          ) : (
-                            <Typography color="red">No</Typography>
-                          )}
-                        </TableCell>
-                        <TableCell align="center">
-                          {row?.stockRevenue?.turnAround ? (
-                            <Typography color="green">Yes</Typography>
-                          ) : (
-                            <Typography color="red">No</Typography>
-                          )}
-                        </TableCell>
-                        <TableCell align="right">{row.stocksector}</TableCell>
-                      </TableRow>
-                    );
-                  })
-                }
-
-                {/* {emptyRows > 0 && (
-                  <TableRow
-                    style={{
-                      height: (dense ? 33 : 53) * emptyRows,
-                    }}
-                  >
-                    <TableCell colSpan={6} />
-                  </TableRow>
-                )} */}
+                        <Box display="flex" alignItems="center" p={1}>
+                          <Avatar src={row.stocklogourl} alt={row.stockname} />
+                          <Stack ml={2}>
+                            <Typography variant="body1">
+                              {row.stocksymbols}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              className="limit-line-1"
+                              sx={{ width: "200px" }}
+                            >
+                              {row.stockname}
+                            </Typography>
+                          </Stack>
+                        </Box>
+                      </TableCell>
+                      <TableCell align="right">
+                        {+row.stockprice}{" "}
+                        <Typography variant="caption" color="gray">
+                          THB
+                        </Typography>
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{
+                          color: row.stockchgpercent < 0 ? "red" : "green",
+                        }}
+                      >
+                        {row.stockchgpercent}%
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{
+                          color: row.stockchg < 0 ? "red" : "green",
+                        }}
+                      >
+                        {row.stockchg}{" "}
+                        <Typography variant="caption" color="gray">
+                          THB
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="right">
+                        {nFormatter(row.stockvol)}
+                      </TableCell>
+                      <TableCell align="right">
+                        {nFormatter(row.stockvolprice)}{" "}
+                        <Typography variant="caption" color="gray">
+                          THB
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="right">{row.stockpe ?? "-"}</TableCell>
+                      <TableCell align="right">
+                        {row.stockeps}{" "}
+                        <Typography variant="caption" color="gray">
+                          THB
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="right">{row?.freefloat}%</TableCell>
+                      <TableCell align="right">{row?.yield / 100}%</TableCell>
+                      <TableCell align="center">
+                        {row?.ath ? (
+                          <Typography color="green">Yes</Typography>
+                        ) : (
+                          <Typography color="red">No</Typography>
+                        )}
+                      </TableCell>
+                      <TableCell align="center">
+                        {row?.growth ? (
+                          <Typography color="green">Yes</Typography>
+                        ) : (
+                          <Typography color="red">No</Typography>
+                        )}
+                      </TableCell>
+                      <TableCell align="center">
+                        {row?.turnAround ? (
+                          <Typography color="green">Yes</Typography>
+                        ) : (
+                          <Typography color="red">No</Typography>
+                        )}
+                      </TableCell>
+                      <TableCell align="right">{row.stocksector}</TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>
         </InfiniteScroll>
-        {/* <TablePagination
-          rowsPerPageOptions={[5, 10, 25, 50, 100]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        /> */}
       </Paper>
-      {/* <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
-      /> */}
     </Box>
   );
 };

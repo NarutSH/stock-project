@@ -73,14 +73,13 @@ const Home = () => {
 
         return {
           ...item,
-          freefloat: mapFreefloat,
+          freefloat: mapFreefloat?.percentfreefloat,
+          yield: +mapFreefloat?.stockytdpercentchange * 100,
           rev: mapStockRev,
 
-          stockRevenue: {
-            ath: compareRev.indexOf(false) === -1 ? true : false,
-            growth: forecastRev / revPrevYear - 1 > 0.3 ? true : false,
-            turnAround: forecastRev > 0 && revPrevYear < 0 ? true : false,
-          },
+          ath: compareRev.indexOf(false) === -1 ? true : false,
+          growth: forecastRev / revPrevYear - 1 > 0.3 ? true : false,
+          turnAround: forecastRev > 0 && revPrevYear < 0 ? true : false,
         };
       });
 
@@ -145,6 +144,12 @@ const Home = () => {
       numeric: true,
       disablePadding: false,
       label: "Free float",
+    },
+    {
+      id: "yield",
+      numeric: true,
+      disablePadding: false,
+      label: "Yield",
     },
     {
       id: "ath",
