@@ -26,7 +26,7 @@ const TableComp = ({ headCells, rows }) => {
   const [selected, setSelected] = useState([]);
   const [dense] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const limitItems = 50;
+  const limitItems = 30;
 
   useEffect(() => {
     function descendingComparator(a, b, orderBy) {
@@ -169,7 +169,7 @@ const TableComp = ({ headCells, rows }) => {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Box my={2}>
+      <Box my={1}>
         <TextField
           label="Search"
           variant="outlined"
@@ -186,22 +186,23 @@ const TableComp = ({ headCells, rows }) => {
         />
       </Box>
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <InfiniteScroll
-          dataLength={items.length}
-          next={fetchMoreData}
-          hasMore={hasMore}
-          loader={<h4>Loading...</h4>}
-          endMessage={
-            <p style={{ textAlign: "center" }}>
-              <b>No more</b>
-            </p>
-          }
-        >
-          <TableContainer>
-            <Table
-              sx={{ minWidth: 750 }}
-              aria-labelledby="tableTitle"
-              size={dense ? "small" : "medium"}
+        <TableContainer sx={{ maxHeight: "80vh", overflowY: "hidden" }}>
+          <Table
+            stickyHeader
+            aria-labelledby="tableTitle"
+            size={dense ? "small" : "medium"}
+          >
+            <InfiniteScroll
+              dataLength={items.length}
+              next={fetchMoreData}
+              hasMore={hasMore}
+              loader={<h4>Loading...</h4>}
+              height={"80vh"}
+              endMessage={
+                <p style={{ textAlign: "center" }}>
+                  <b>No more</b>
+                </p>
+              }
             >
               <EnhancedTableHead
                 numSelected={selected.length}
@@ -211,6 +212,7 @@ const TableComp = ({ headCells, rows }) => {
                 onRequestSort={handleRequestSort}
                 rowCount={rows.length}
               />
+
               <TableBody>
                 {items.map((row, index) => {
                   const isItemSelected = isSelected(row.name);
@@ -317,9 +319,9 @@ const TableComp = ({ headCells, rows }) => {
                   );
                 })}
               </TableBody>
-            </Table>
-          </TableContainer>
-        </InfiniteScroll>
+            </InfiniteScroll>
+          </Table>
+        </TableContainer>
       </Paper>
     </Box>
   );
